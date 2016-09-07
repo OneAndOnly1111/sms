@@ -1,0 +1,163 @@
+<script type="text/javascript">
+	$(function(){
+		//跨域加载学生信息
+		loadStudentData();
+		//为全选绑定事件
+		$(".opt_btns :checkbox").off();  //绑定之前先解绑
+		$(".opt_btns :checkbox").change(function(){
+			if($(this).prop("checked")){
+				$("#stuTbl td :checkbox:visible").prop("checked",true);
+			}else{
+				$("#stuTbl td :checkbox:visible").prop("checked",false);	
+			}	
+		});
+		//为按钮绑定事件
+		$(".opt_btns button").off();
+		$(".opt_btns button").click(function(){
+			//opt表示按钮中的文字
+			var opt = $(this).text();
+			switch(opt){
+				case "添加":
+					$(".tab_content").load("model/student/addStudent.html");
+				break;
+				case "修改":
+					//获取要修改元素的id
+					var id = $("#stuTbl input:checked").map(function(index,item){
+						return item.value;
+					}).get(0);  //get(0)是保证每次只获取一个元素 即修改一个元素
+					if(id){
+						//获取要修改的学生信息
+						var stu;
+						$.ajax("model/student/updStudent.json",{
+							async:false,
+							success:function(data){
+								stu = data;
+							}
+						});
+						//加载修改学生信息的页面
+						$(".tab_content").load("model/student/updStudent.html",function(){
+							$(":text[name='name']").val(stu.name); //获取姓名
+							$(":text[name='gender']").val(stu.gender); //获取性别
+							$(":text[name='grade']").val(stu.grade);  //获取成绩
+							$("select[name='clazzId']").val(stu.className);   //获取班级
+						});	
+					}else{
+						alert("请先选择学生再修改！")	
+					}
+				break;
+				//刷新就是重新加载页面
+				case "刷新":
+					loadStudentData();
+				break;
+				case "删除":
+					//获取删除元素的id
+					var ids = $("#stuTbl input:checked").map(function(index,item){
+						return item.value;
+					}).get().join();
+					//将删除的id传送给后台
+					var url="";
+					$.ajax(url,{
+						dataType:"jsonp",
+						jsonp:"jsonp",
+						jsonpCallback:"aaa",
+						data:{ids:ids},
+						success:function(){
+							alert("删除成功！");
+							//删除完了刷新
+							loadStudentData();		
+						},	
+					});
+				break;
+			}	
+		});
+		//为筛选按钮绑定事件
+		$(".selects :submit").off();
+		$(".selects :submit").on("click",function(){
+			var key = $("select[name='search_key']").val();
+			console.log($("select[name='search_key']").val());
+			var val = $("input[name='search_val']").val();
+			var data = new Object();
+			data[key] = val;
+			//加载数据
+			loadStudentData(data);	
+		});	
+	});
+	//跨域加载学生信息函数封装
+	function loadStudentData(data){
+		var url="http://127.0.0.1:81/project/sms/model/student/students.json";
+		data = data||{}
+		$.ajax(url,{
+			dataType:"jsonp",
+			jsonp:"jsonp",
+			data:data,
+			jsonpCallback:"loadData"
+		});		
+	}
+	//jsonp的回调函数
+	function loadData(data){
+		//刷新后让全选按钮取消选定
+		$(".opt_btns :checkbox").prop("checked",false);
+		//清空tbody中的原有信息
+		$("#stuTbl tbody tr").remove(":not(:first)");
+		data.forEach(function(item){
+			var newTr = $(".hiddenTr").clone().removeClass("hiddenTr");
+			newTr.find(":checkbox").val(item.id);
+			newTr.children().eq(1).text(item.name);
+			newTr.children().eq(2).text(item.gender);
+			newTr.children().eq(3).text(item.className);
+			newTr.children().eq(4).text(item.grade);
+			//将处理好的行追加到tbody
+			$("#stuTbl tbody").append(newTr);
+		});
+	}
+</script>
+<style>
+	th{	
+		background-color:#9af;
+		height:24px;
+	}
+	.hiddenTr{
+		display:none;	
+	}
+</style>
+<!-- 学生管理 -->
+<div class="inner">
+	<div class="selects">
+		<select name="search_key">
+			<option value="name">姓名</option>
+			<option value="clazzName">班级</option>
+			<option value="grade">成绩</option>
+		</select>
+		<input type="text" name="search_val">
+		<input type="submit" value="search">
+	</div>
+	<table id="stuTbl">
+		<thead>
+			<tr>
+				<th>选择</th>
+				<th>姓名</th>
+				<th>班级</th>
+				<th>性别</th>
+				<th>分数</th>
+			</tr>
+		</thead>
+		<tbody>	
+        	<tr class="hiddenTr">
+				<td>
+					<input type="checkbox">
+				</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="opt_btns">
+		<input type="checkbox" name="">
+		<button>添加</button>
+		<button>修改</button>
+		<button>删除</button>
+        <button>刷新</button>
+	</div>
+</div>

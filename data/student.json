@@ -1,0 +1,26 @@
+[{
+	"name":"lili",
+	"class":"class1",
+	"gender":"女",
+	"grade":90
+},{
+	"name":"larry",
+	"class":"class2",
+	"gender":"女",
+	"grade":80
+},{
+	"name":"bingo",
+	"class":"class1",
+	"gender":"男",
+	"grade":90
+},{
+	"name":"tom",
+	"class":"class2",
+	"gender":"男",
+	"grade":65
+},{
+	"name":"vicky",
+	"class":"class2",
+	"gender":"男",
+	"grade":99
+}]

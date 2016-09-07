@@ -1,0 +1,159 @@
+<script type="text/javascript">
+	$(function(){
+		//加载教师信息
+		loadTeacherData();
+		//给全选按钮添加事件
+		$(".opt_btns :checkbox").off();
+		$(".opt_btns :checkbox").change(function(){
+			if($(".opt_btns :checkbox").prop("checked")){
+				$("#teaTbl td :checkbox:visible").prop("checked",true);
+			}else{
+				$("#teaTbl td :checkbox:visible").prop("checked",false);	
+			}
+		});
+		//为按钮绑定事件
+		$(".opt_btns button").click(function(){
+			var opt = $(this).text();
+			switch(opt){
+				case "添加":
+					$(".tab_content").load("model/teacher/addTeacher.html");
+				break;
+				case "修改":
+					//获取要修改元素的id
+					var id = $("#teaTbl input:checked").map(function(index,item){
+						return item.value;
+					}).get(0);
+					if(id){
+						//获取要修改的教师信息
+						var url = "model/teacher/updTeacher.json";
+						var teacher;
+						$.ajax(url,{
+							async:false,
+							success:function(data){
+								teacher = data;
+							}
+						});
+						//加载修改教师信息的页面
+						$(".tab_content").load("model/teacher/updTeacher.html",function(){
+							$(":text[name='name']").val(teacher.name);
+							$(":text[name='workage']").val(teacher.workage);
+							$(":text[name='salary']").val(teacher.salary);
+							$("select[name='teacherId']").val(teacher.level);
+						});
+					}else{
+						alert("请先选择教师再进行修改！");	
+					}
+				break;
+				case "删除":
+					//获取要删除的id
+					var ids = $("#teaTbl input:checked").map(function(index,item){
+						return item.value
+					}).get().join();
+					//将获取到id传给后台
+					$.ajax("",{
+						dataType:"jsonp",
+						jsonp:"jsonp",
+						jsonpCallback:"aaa",
+						data:{ids:ids},
+						success:function(){
+							alert("删除成功！");
+							//删除完了之后刷新页面
+							loadTeacherData();	
+						}
+					});
+				break;
+				case "刷新":
+					loadTeacherData();
+				break;
+			}		
+		});
+		//为筛选按钮绑定事件
+		$(".selects :submit").off();
+		$(".selects :submit").on("click",function(){
+			var key = $("select[name='search_key']").val();
+			var val = $("input[name='search_val']").val();
+			var data = new Object();
+			data[key] = val;
+			//加载数据
+			loadTeacherData(data);	
+		});	
+	});
+	//跨域加载教师信息
+	function loadTeacherData(data){
+		var url = "http://127.0.0.1:81/project/sms/model/teacher/teachers.json";
+		data = data||{};
+		$.ajax(url,{
+			dataType:"jsonp",
+			jsonp:"jsonp",
+			data:data,
+			jsonpCallback:"loadData"	
+		});
+	}
+	//jsonp的回调函数
+	function loadData(data){
+		//刷新后让全选按钮取消选定
+		$(".opt_btns :checkbox").prop("checked",false);
+		$("#teaTbl :checkbox").prop("checked",false);
+		//清空tbody中的原有信息
+		$("#teaTbl tbody tr").remove(":not(:first)");
+		data.forEach(function(item){
+			var newTr = $(".hiddenTr").clone().removeClass("hiddenTr");
+			newTr.find(":checkbox").val(item.id);
+			newTr.children().eq(1).text(item.name);
+			newTr.children().eq(2).text(item.workage);
+			newTr.children().eq(3).text(item.salary);
+			newTr.children().eq(4).text(item.level);
+			$("#teaTbl tbody").append(newTr);	
+		});
+	}	
+</script>
+<style>
+	th{	
+		background-color:#9af;
+		height:24px;
+	}
+	.hiddenTr{
+		display:none;	
+	}
+</style>
+<!-- 教师管理 -->
+<div class="inner">
+	<div class="selects">
+		<select name="search_key">
+			<option value="name">姓名</option>
+			<option value="salary">薪资</option>
+			<option value="level">等级</option>
+		</select>
+		<input type="text" name="search_val">
+		<input type="submit" name="" value="search">
+	</div>
+	<table id="teaTbl">
+		<thead>
+			<tr>
+				<th>选择</th>
+				<th>姓名</th>
+				<th>工龄</th>
+				<th>薪资</th>
+				<th>等级</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="hiddenTr">
+				<td>
+					<input type="checkbox" name="">
+				</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="opt_btns">
+		<input type="checkbox" name="">
+		<button>添加</button>
+		<button>修改</button>
+		<button>删除</button>
+        <button>刷新</button>
+	</div>
+</div>

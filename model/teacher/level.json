@@ -1,0 +1,13 @@
+[{
+	"id":2004,
+	"name":"lisa",
+	"workage":8,
+	"salary":10000,
+	"level":"初级教师"	
+},{
+	"id":2005,
+	"name":"lisy",
+	"workage":5,
+	"salary":8000,
+	"level":"特级教师"	
+}]

@@ -1,0 +1,19 @@
+loadData([{
+	"id":2001,
+	"name":"Tony",
+	"workage":5,
+	"salary":8000,
+	"level":"特级教师"	
+},{
+	"id":2002,
+	"name":"Tim",
+	"workage":2,
+	"salary":4000,
+	"level":"初级教师"	
+},{
+	"id":2003,
+	"name":"Vicky",
+	"workage":3,
+	"salary":6000,
+	"level":"特级教师"	
+}])

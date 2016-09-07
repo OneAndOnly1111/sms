@@ -1,0 +1,158 @@
+<script>
+	$(function(){
+		//加载教室信息
+		loadClazzData();
+		//为全选按钮绑定事件
+		$(".opt_btns :checkbox").off();
+		$(".opt_btns :checkbox").change(function(){
+			if($(this).prop("checked")){
+				$("#claTbl :checkbox:visible").prop("checked",true);
+			}else{
+				$("#claTbl :checkbox:visible").prop("checked",false);	
+			}
+		});
+		//为按钮绑定事件
+		$(".opt_btns button").click(function(){
+			var opt = $(this).text();
+			switch(opt){
+				case "添加":
+					$(".tab_content").load("model/clazz/addClazz.html");
+				break;
+				case "修改":
+					//获取要修改的id
+					var id = $("#claTbl input:checked").map(function(index,item){
+						return item.value;	
+					}).get(0);
+					if(id){
+						var clazz;
+						//获取要修改的教室的信息
+						$.ajax("model/clazz/updClazz.json",{
+							async:false,
+							success:function(data){
+								clazz = data;
+							}
+						});
+						//加载修改教室信息的页面
+						$(".tab_content").load("model/clazz/updClazz.html",function(){
+							$("input[name='name']").val(clazz.className);
+							$("input[name='classNum']").val(clazz.classNum);
+							$("input[name='master']").val(clazz.master);
+							$("input[name='monitor']").val(clazz.monitor);
+						});
+					}else{
+						alert("请先选择班级再修改！");	
+					}
+				break;
+				case "删除":
+					//获取要删除的id
+					var ids = $("#claTbl input:checked").map(function(index,item){
+						return item.value;
+					}).get().join();
+					//将获取到的id传输给后台
+					$.ajax("",{
+						dataType:"jsonp",
+						jsonp:"jsonp",
+						jsonpCallback:"aaa",
+						data:{
+							ids:ids
+						},
+						success: function(){
+							alert("删除成功！");	
+							//删除完了之后刷新页面
+							loadClazzData();	
+						}
+					});
+				break;
+				case "刷新":
+					loadClazzData();
+				break;	
+			}	
+		});
+		//为筛选按钮绑定事件
+		$(".selects :submit").off();
+		$(".selects :submit").on("click",function(){
+			var key = $("select[name='search_key']").val();
+			var val = $("input[name='search_val']").val();
+			var data = new Object();
+			data[key] = val;
+			//加载数据
+			loadClazzData(data);
+		});	
+	});
+	//加载教室信息封装
+	function loadClazzData(data){
+		var url="model/clazz/clazz.json";
+		data = data||{};
+		$.ajax(url,{
+			dataType:"jsonp",
+			jsonp:"jsonp",
+			data:data,
+			jsonpCallback:"loadClazz",
+		});	
+	}
+	function loadClazz(data){
+		//刷新后全选按钮取消选定
+		$(".opt_btns :checkbox").prop("checked",false);
+		//清空tbody中的原有信息
+		$("#claTbl tbody tr").remove(":not(:first)");
+		data.forEach(function(item){
+			var newTr = $(".hiddenTr").clone().removeClass("hiddenTr");
+			newTr.find(":checkbox").val(item.id);
+			newTr.children().eq(1).text(item.className);
+			newTr.children().eq(2).text(item.classNum);
+			newTr.children().eq(3).text(item.master);
+			newTr.children().eq(4).text(item.monitor);
+			$("#claTbl tbody").append(newTr);
+		});	
+	};
+</script>
+<style>
+	th{	
+		background-color:#9af;
+		height:24px;
+	}
+	.hiddenTr{
+		display:none;	
+	}
+</style>
+<!-- 班级管理 -->
+<div class="inner">
+	<div class="selects">
+		<select name="search_key">
+			<option value="name">班级</option>
+			<option value="clazzNum">人数</option>
+			<option value="master">班主任</option>
+		</select>
+		<input type="text" name="search_val">
+		<input type="submit" name="" value="search">
+	</div>
+	<table id="claTbl">
+		<thead>
+			<tr>
+				<th>选择</th>
+				<th>班级名称</th>
+				<th>班级人数</th>
+				<th>班主任</th>
+				<th>班长</th>
+			</tr>
+		</thead>
+		<tbody>
+			<tr class="hiddenTr">
+				<td>
+					<input type="checkbox">
+				</td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+		</tbody>
+	</table>
+	<div class="opt_btns">
+		<input type="checkbox" name="">
+		<button>添加</button>
+		<button>修改</button>
+		<button>删除</button>
+        <button>刷新</button>
+	</div>
+</div>

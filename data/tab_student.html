@@ -1,0 +1,116 @@
+<script type="text/javascript">
+	$(function(){
+		//获取数据
+		$.getJSON("data/student.json",function(data){
+			//遍历数据
+			$(data).each(function(index,item){
+				create(item);
+			});
+			//查询
+			$("input[value='search']").click(function(){
+				$("tbody").empty(); //点击后先清空之前的元素
+				$(data).each(function(index,item){
+					//按姓名查询
+					if($("input[type='text']").val() == item.name && $("option[value='name']")[0].selected == true){
+						create(item);
+					}
+					//按班级查询
+					if($("input[type='text']").val() == item.class && $("option[value='clazz']")[0].selected == true){
+						create(item);
+						console.log(item);
+					}
+					//按成绩查询
+					if($("input[type='text']").val() == item.grade && $("option[value='grade']")[0].selected == true){
+						create(item);
+					}
+				});
+			});
+			/*
+			//排序
+			$(".selects select").change(function(){
+				$(data).each(function(index,item){
+					//按班级排序
+					if($("option[value='clazz']")[0].selected = true){
+						$(item).sort(function(a,b){
+							if(a.class<b.class){
+								return -1;
+							}else if(a.class>b.class){
+								return 1;
+							}
+						});
+					 }
+					 //按成绩排序
+					 if($("option[value='grade']")[0].selected = true){
+						$(item).sort(function(a,b){
+							if(a.grade<b.grade){
+								return -1;
+							}else if(a.grade>b.grade){
+								return 1;
+							}
+						});
+					 }
+				});	
+			});
+			*/
+		});
+		
+		//全选
+		$(".opt_btns>input").click(function(){
+			if($(".opt_btns>input")[0].checked==true){
+				$("td>input").prop("checked",true)
+			}else{
+				$("td>input").prop("checked",false);
+			}	
+		});
+		//删除
+		$("button:contains('删除')").click(function(){
+			$("td>input:checked").parent().parent().remove();
+		});
+
+	});
+
+	//封装创建代码
+	function create(data){
+		var newTr = $("<tr></tr>");
+		$("tbody").append(newTr);
+		var newInput = $("<td><input type='checkbox'/></td>");
+		newTr.append(newInput);
+		for(var key in data){
+			var newTd = $("<td></td>");
+			newTd.text(data[key]);
+			newTr.append(newTd);
+		}
+	}
+</script>
+
+<!-- 学生管理 -->
+<div class="inner">
+	<div class="selects">
+		<select name="" id="">
+			<option value="name">姓名</option>
+			<option value="clazz">班级</option>
+			<option value="grade">成绩</option>
+		</select>
+		<input type="text" name="">
+		<input type="submit" name="" value="search">
+	</div>
+	<table>
+		<thead>
+			<tr>
+				<th>选择</th>
+				<th>姓名</th>
+				<th>班级</th>
+				<th>性别</th>
+				<th>分数</th>
+			</tr>
+		</thead>
+		<tbody>	
+		</tbody>
+	</table>
+	<div class="opt_btns">
+		<input type="checkbox" name="">
+		<button>添加</button>
+		<button>修改</button>
+		<button>删除</button>
+	</div>
+</div>

@@ -1,0 +1,100 @@
+<style>
+	h2{
+		margin:10px 0;
+	}
+	.return{
+		position:absolute;
+		right:20px;
+		top:20px;
+		font-weight:bold;
+	}
+</style>
+<script>
+	$(function(){
+		//加载教师等级
+		loadTeacherToSelect();
+		//给返回按钮添加事件
+		$(".return").off();
+		$(".return").click(function(){
+			$(".tab_content").load("model/teacher/tab_teacher.html");	
+		});
+		//给form表单添加事件
+		$("form[name='addTeaForm']").off();
+		$("form[name='addTeaForm']").submit(function(){
+			//获取数据
+			var name = $("input[name='name']").val();
+			var workage = $("input[name='workage']").val();
+			var salary = $("input[name='salary']").val();
+			var level = $("select[name='teacherId']").val();
+			//跨域提交数据
+			$.ajax("",{
+				dataType:"jsonp",
+				method:"POST",
+				jsonp:"jsonp",
+				data:{
+					name:name,
+					workage:workage,
+					salary:salary,
+					level:level	
+				},
+				success:function(){
+					alert("提交成功！");
+					$("input[type='reset']").trigger("click");
+				},
+				error:function(){
+					alert("提交失败！");
+				}
+			});
+			//取消默认事件
+			return false;
+		});
+	});
+	//加载教师等级封装
+	function loadTeacherToSelect(){
+		var url = "model/teacher/level.json";
+		$.getJSON(url,function(data){
+			//清空select中的元素
+			$("select[name='teacherId']").children(":gt(0)").remove();
+			data.forEach(function(item){
+				var newOpt = $("<option value='"+item.id+"'>"+item.level+"</option>");
+				$("select[name='teacherId']").append(newOpt);
+			});
+		});	
+	}
+</script>
+<div class="inner">
+	<h2>录入教师信息</h2>
+    <a href="javascript:void(0)" class="return">返回</a>
+    <form name="addTeaForm" action="savaTeacher.action" method="post">
+    	<table>
+        	<tbody>
+            	<tr>
+                	<td>姓名</td>
+                    <td><input type="text" name="name"/></td>
+                </tr>
+                <tr>
+                	<td>工龄</td>
+                    <td><input type="text" name="workage"/></td>
+                </tr>
+                <tr>
+                	<td>薪资</td>
+                    <td><input type="text" name="salary"/></td>
+                </tr>
+                <tr>
+                	<td>等级</td>
+                    <td>
+                    	<select name="teacherId">
+                        	<option>请选择</option>
+                        </select>
+                    </td>
+                </tr>
+                <tr>
+                	<td colspan="2">
+                    	<input type="submit" value="保存"/>
+                        <input type="reset" value="重置"/>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </form>
+</div>

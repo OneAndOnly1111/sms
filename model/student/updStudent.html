@@ -1,0 +1,105 @@
+<style>
+	h2{
+		margin:10px 0;	
+	}
+	.return{
+		position:absolute;
+		right:20px;
+		top:20px;
+		font-weight:bold;
+	}
+</style>
+<script>
+	//select-加载班级信息封装
+	function loadClazzToSelect(){
+		var url = "model/clazz/classes.json";
+		$.get(url,function(data){
+			//将select中的option清空
+			$("select[name='clazzId']").children(":gt(0)").remove();
+			data.forEach(function(item){
+				//创建新的option
+				var newOpt = $("<option value='"+item.id+"'>"+item.className+"</option>");
+				$("select[name='clazzId']").append(newOpt);
+			});
+		});	
+	}
+	$(function(){
+		//select-加载班级信息
+		loadClazzToSelect();
+		//给返回按钮添加事件
+		$(".return").off();
+		$(".return").click(function(){
+			$(".tab_content").load("model/student/tab_student.html");		
+		});
+		//给form表单添加事件
+		$("form[name='addStuForm']").off("submit");
+		$("form[name='addStuForm']").submit(function(event){	
+			var name = $("input[name='name']").val();
+			var gender = $("input[name='gender']:checked").val();
+			var grade = $("input[name='grade']").val();
+			var classId = $("select[name='clazzId']").val();
+			//跨域提交数据
+			$.ajax("",{	
+				dataType:"jsonp",
+				method:"POST",
+				jsonp:"jsonp",
+				jsonpCallback:"callBack",	
+				data:{
+					name:name,
+					gender:gender,
+					grade:grade,
+					classId:classId			
+				},
+				success:function(){
+					alert("提交成功！");
+					$("form[name='addStuForm']").reset();	
+				},
+				error:function(){
+					alert("保存失败！");	
+				}
+			});
+			//阻止表单默认提交
+			//event.preventDefault();
+			return false;
+		});	
+	});
+</script>
+<div class="inner">
+	<h2>修改学生信息</h2>
+	<a href="javascript:void(0)" class="return">返回</a>
+	<form name="addStuForm" action="saveStudent.action" method="post">
+		<table>
+			<tbody>
+    			<tr>
+            		<td>姓名</td>
+                	<td><input type="text" name="name"/></td>
+            	</tr>
+            	<tr>
+            		<td>性别</td>
+                	<td>
+               			男<input type="radio" name="gender" value="man" />
+                  		女<input type="radio" name="gender" value="female" checked="checked"/>
+                	</td>
+           		</tr>
+            	<tr>
+            		<td>分数</td>
+                	<td><input type="text" name="grade"></td>
+            	</tr>
+            	<tr>
+            		<td>班级</td>
+                	<td>
+                		<select name="clazzId">
+                    		<option value="">请选择</option>
+                    	</select>
+                	</td>
+            	</tr>
+            	<tr>
+            		<td colspan="2">
+                		<input type="submit" value="保存"/>
+                    	<input type="reset" value="重置"/>
+                	</td>
+            	</tr>
+   	 		</tbody>
+		</table>
+	</form>
+</div>
